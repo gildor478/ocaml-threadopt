@@ -1,0 +1,78 @@
+OASISFormat:  0.4
+OCamlVersion: >= 3.12.0
+Name:         ocaml-threadopt
+Version:      0.0.1
+Synopsis:     Thread-safe functions, without threads dependency.
+Authors:      Sylvain Le Gall
+Copyrights:   (C) 2015 Sylvain Le Gall
+License:      LGPL-2.1 with OCaml linking exception
+Plugins:      DevFiles (0.4), META (0.4), StdFiles (0.4)
+BuildTools:   ocamlbuild (0.4)
+Homepage:     https://forge.ocamlcore.org/projects/ocaml-threadopt/
+Description:
+  ThreadOpt is a library that provides thread-safe locking primitives. It
+  actually doesn't pull any thread library, except if compiled with "mt"
+  predicate of ocamlfind. 
+  .
+  When the library is used with threading support enabled, no lock are
+  enforced. As soon as the library is used with "mt" enabled, it turns on
+  classical Thread-safe operations.
+  .
+  This library is particularly useful to build other libraries that will
+  abstract thread operations.
+
+Library threadopt
+  Path:       src/lib/threadopt
+  Modules:    ThreadOpt
+
+Object threads
+  Path:         src/lib/threadopt/threads
+  BuildDepends: threadopt, threads
+  # TODO: mt + findlib.
+  
+#
+# Examples
+#
+
+Library demolib
+  Path:         examples/demolib
+  Modules       Demolib
+  BuildDepends: threadopt
+  Install:      false
+
+Executable demoprognothrd
+  Path:         examples/demoprognothrd
+  MainIs:       main.ml
+  BuildDepends: demolib
+
+Executable demoprogthrd
+  Path:         examples/demoprogthrd
+  MainIs:       main.ml
+  BuildDepends: demolib, threads
+  Install:      false
+
+# 
+# Tests
+# 
+
+Executable test_no_thread
+  Path:         test
+  Build$:       flag(tests)
+  Install:      false
+  MainIs:       test_no_thread.ml
+  BuildDepends: oUnit (>= 2.0), threadopt
+
+Test main_no_thread
+  Command:   $test_no_thread
+  TestTools: test_no_thread
+
+Executable test_thread
+  Path:         test
+  Build$:       flag(tests)
+  Install:      false
+  MainIs:       test_thread.ml
+  BuildDepends: oUnit (>= 2.0), threadopt, threads
+
+Test main_thread
+  Command:   $test_thread
+  TestTools: test_thread
